@@ -1,15 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <form method="get" action="/results/" class="navbar-form pull-right">
-    <input type="text" id="searchBox" class="input-medium search-query" name="keyword" placeholder="Search">
-    <input type="submit" class="btn" value="Search" >
-    </form>
-    {% for post in posts %}
-        <div class='post'; style="height: 290px; overflow: hidden;">
-            <p>published: {{ post.published_date }}</p>
-            <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
-            <p>{{ post.text|linebreaksbr }}</p>
-        </div>
-    {% endfor %}
+    <video name='demo' controls autoplay width='50%' height='40%'>
+        <source src="test.mp4" type="video/mp4"></source>
+    </video>
 {% endblock %}
