@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+    <p></p>
+<form method="POST" action="{% url 'add_user' %}">
+    {% csrf_token %}
+    <table>
+        {% if message %}
+            <div style="color:red">{{message}}</div>
+        {% endif %}
+        Username: <input type="text" name="Username"><br>
+        Password: <input type="password" name="Password"><br>
+        Confirm Password: <input type="password" name="Confirmpass"><br>
+        <input type="submit" value="Add" />
+        <input type="hidden" name="next" value="{{ next }}" />
+    </table>
+</form>
+{% endblock %}
