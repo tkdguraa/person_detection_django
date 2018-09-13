@@ -4,4 +4,6 @@ from . import views
 urlpatterns = [
     url(r'^$', views.post_list, name='post_list'),
     url(r'^signup/?$', views.sign_up, name='signup'),
+    url(r'^detect/?$', views.detect, name='detect'),
+    url(r'^video/?$', views.video, name='video'),
 ]
