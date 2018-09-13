@@ -1,40 +1,94 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponse, StreamingHttpResponse
-from django.views.decorators import gzip
-
 import base64
 import io
 import cv2
 import time
 import os
-from jinja2 import Environment, FileSystemLoader
+
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
+from django.http import StreamingHttpResponse
+from django.views.decorators import gzip
 from django.template import Context, loader
+from django.contrib import auth
+from django.contrib.auth.models import User
+from django import forms
+from .models import Record
+from .forms import changeform,userform,warningform
 from darkflow.net.build import TFNet
-# from django.contrib.auth.models import User
 
-# Create your views here.
-def post_list(request):
-    print('!!!!!!!!!!!!x: ', x)
-    return render(request, 'post_list.html')
+def remove_record(request):
+    id = request.GET.get("id")
+    Record.objects.filter(id = id).delete()
+    Records = Record.objects.filter(date__lte=timezone.now()).order_by('-date')
+    return render(request, 'warning_record.html',{'Records': Records})
 
-
-def sign_up(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+def warning_record(request):
+    Records = Record.objects.filter(date__lte=timezone.now()).order_by('-date')
+    return render(request, 'warning_record.html',{'Records': Records})
+        
+def observation(request):
+    if request.method == "POST":
+        form = warningform(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('/')
+            Tphase1 = form.cleaned_data.get('Tphase1')
+            Tphase2 = form.cleaned_data.get('Tphase2')
+            Pphase1 = form.cleaned_data.get('Pphase1')
+            Pphase2 = form.cleaned_data.get('Pphase2')
+            peoplenumber = form.cleaned_data.get('peoplenumber')
+            staytime = form.cleaned_data.get('staytime')
+            if staytime < Tphase1:
+                phase = 'phase1'
+            elif Tphase1 <= staytime and staytime <= Tphase2:
+                phase = 'phase2'
+                Record.objects.create(phase='phase2',type='Staytime',date=timezone.now())
+            else:
+                phase = 'phase3'
+                Record.objects.create(phase='phase3',type='Staytime',date=timezone.now())
+            return render(request,'observation.html',{'phase':phase})
+    else:
+        form = warningform()
+    return render(request, 'observation.html',{'form': form})
+
+def change_password(request):
+    if request.method == "POST":
+        form = changeform(request.POST)
+        if form.is_valid():
+            Username = request.user.username
+            Oldpassword = form.cleaned_data.get('Oldpassword')
+            Newpassword = form.cleaned_data.get('Newpassword')
+            Confirmpass = form.cleaned_data.get('Confirmpass')
+            user = auth.authenticate(username=Username, password=Oldpassword)
+            if user is not None and Confirmpass == Newpassword:
+                user.set_password(Newpassword)
+                user.save()
+                return redirect('/')
+            else:
+                message = 'Oldpassword is wrong or new password is different'
+                return render(request,'change_password.html',{'message':message})
+    else:
+        form = changeform()
+        return render(request, 'change_password.html', {'form': form})
+    
+def add_user(request):  
+    if request.method == 'POST':
+        form = userform(request.POST)  
+        if form.is_valid():
+            Username = form.cleaned_data['Username']
+            Password = form.cleaned_data['Password']
+            Confirmpass = form.cleaned_data['Confirmpass']
+            if User.objects.filter(username=Username) or Confirmpass != Password:
+               message = 'Username already exists or password is different'
+               return render(request, 'add_user.html',{'message':message})
+
+            user = User.objects.create_user(username=Username, password=Password)
+            user.save()
+            return redirect('/')    
     else:
         form = UserCreationForm()
-    return render(request, 'sign_up.html', {'form': form})
+    return render(request, 'add_user.html',{'form': form})
 
 def display(request):
     img_str = base64.b64encode(b"")
@@ -73,28 +127,7 @@ def video(request):
     
 #     return StreamingHttpResponse(stream)
 
-def simulate_long_response_with_delay():
-    for i in range(5):
-        time.sleep(1)
-        yield 'This request is taking a while... still {} seconds to go'.format(5 - i)
 
-def get_sample_context():
-
-    long_response = simulate_long_response_with_delay()
-    mystring = 'I am a string stored in the context dict'
-    context = {'mylist': [1, 2, 3, 4, 5], 'mystring': mystring, 'mylongresponse': long_response}
-
-    return context
-
-def jinja_generate_with_template(template_filename, context):
-
-    template_dir = os.path.dirname(os.path.abspath(__file__)) + '/templates/'
-
-    j2_env = Environment(loader=FileSystemLoader(template_dir), trim_blocks=True)
-    j2_template = j2_env.get_template(template_filename)
-    j2_generator = j2_template.generate(context)
-    
-    return j2_generator
 
 def run_darkflow():
     options = {

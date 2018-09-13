@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<section id="content">
+	<div class="wrap-content">
+           {% for Record in Records %}
+                   <tr>
+                   <td>{{ Record.type }}<span>&nbsp;&nbsp;&nbsp;</span></td>
+                   <td>{{ Record.phase }}<span>&nbsp;&nbsp;&nbsp;</span></td>
+                   <td>{{ Record.date }}<span>&nbsp;&nbsp;&nbsp;</span></td>
+                   <td><a href = "/remove_record/?id={{Record.id}}">Remove</a></td>
+                   </tr><br>
+           {% endfor %}
+	</div>
+</section>
+<style>
+    table {
+        border-spacing: 0;
+        width: 80%;
+        position:absolute;
+    }
+    th{
+        cursor: pointer;
+    }
+    th,td {
+        text-align: left;
+        padding: 10px;
+    }
+    tr:nth-child(2n+1) {
+        background-color:rgb(39, 218, 164)
+    }
+    tr:nth-child(2n) {
+        background-color:rgb(81, 158, 221)
+    }
+</style>
+{% endblock %}
