@@ -1,3 +1,4 @@
 forum/__pycache__
 mysite/__pycache__
 mysite/settings.py
+db.sqlite3
