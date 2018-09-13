@@ -12,11 +12,7 @@
                 <td>{{ Record.type }}</td>
                 <td>{{ Record.phase }}</td>
                 <td>{{ Record.date }}</td>
-                <td>
-                    <form>
-                        
-                    </form>
-                </td>
+                <td><a href = "/remove_record/?id={{Record.id}}">Remove</a></td>
                 </tr>
         {% endfor %}
     </table>

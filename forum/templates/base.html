@@ -12,13 +12,27 @@
                 <p class="top-menu">Hello {{ user.username }}! <small><a href="{% url 'logout' %}">Log out</a></small></p>
                 {% if request.user.is_superuser %}
                     <a href="{% url 'add_user' %}">Add User</a><br>
-                    <a href="{% url 'change_password' %}">Change Password</a>
+                    <a href="{% url 'warning_record' %}">Warning record</a><br>
                 {%endif%}
+                <a href="{% url 'change_password' %}">Change Password</a>
             {% else %}  
                 <div>
                     <a href="{% url 'login' %}">Login</a>
                 </div>
             {% endif %}
+            <form method="POST" action="{% url 'observation' %}">
+                    {% csrf_token %}
+                        <table>
+                            {% if user.is_authenticated %}
+                                stay time limit: <input type="text" name="Tphase1" style="width:40px"><input type="text" name="Tphase2" style="width:40px"><br>
+                                number of people limit: <input type="text" name="Pphase1" style="width:40px"><input type="text" name="Pphase2" style="width:40px"><br>
+                                people in camera: <input type="text" name="peoplenumber" style="width:40px"><br>
+                                stay time:<input type="text" name="staytime" style="width:40px"><br>
+                                <input type="submit" value="Set" />
+                                <input type="hidden" name="next" value="{{ next }}" />
+                            {% endif %}
+                        </table>
+                </form>
         </div>
             <div class="col-md-8">
                 {% block content %}

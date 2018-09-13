@@ -7,10 +7,20 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django import forms
 from django.http import HttpResponse
+from .models import Record
+from django.utils import timezone
 from .forms import changeform,userform,warningform
-# from django.contrib.auth.models import User
 
-# Create your views here.
+def remove_record(request):
+    id = request.GET.get("id")
+    Record.objects.filter(id = id).delete()
+    Records = Record.objects.filter(date__lte=timezone.now()).order_by('-date')
+    return render(request, 'warning_record.html',{'Records': Records})
+
+def warning_record(request):
+    Records = Record.objects.filter(date__lte=timezone.now()).order_by('-date')
+    return render(request, 'warning_record.html',{'Records': Records})
+        
 def observation(request):
     if request.method == "POST":
         form = warningform(request.POST)
@@ -25,9 +35,10 @@ def observation(request):
                 phase = 'phase1'
             elif Tphase1 <= staytime and staytime <= Tphase2:
                 phase = 'phase2'
+                Record.objects.create(phase='phase2',type='Staytime',date=timezone.now())
             else:
                 phase = 'phase3'
-
+                Record.objects.create(phase='phase3',type='Staytime',date=timezone.now())
             return render(request,'observation.html',{'phase':phase})
     else:
         form = warningform()
