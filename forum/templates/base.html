@@ -1,42 +1,58 @@
 {% load static %}
-<html>
-    <head>
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-        <link href="//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-        <link rel="stylesheet" href="{% static 'css/forum.css' %}">
-    </head>
-    <body>
-        <div class="page-header">
+
+<!--===========
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <!-- Basic Page Needs
+  ================================================== -->
+	<meta charset="utf-8">
+	<title>CCTV</title>
+    <!-- Mobile Specific Metas
+  ================================================== -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!-- CSS
+  ================================================== -->
+  	<link rel="stylesheet" href="{% static 'css/zerogrid.css' %}">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+</head>
+<body>
+<div class="wrap-body zerogrid">
+<header>
+	<div class="wrap-header">	
+		<div id="logo">
+            <h1>CCTV</h1></a>
             {% if user.is_authenticated %}
-                <p class="top-menu">Hello {{ user.username }}! <small><a href="{% url 'logout' %}">Log out</a></small></p>
-                {% if request.user.is_superuser %}
-                    <a href="{% url 'add_user' %}">Add User</a><br>
-                    <a href="{% url 'warning_record' %}">Warning record</a><br>
-                {%endif%}
-                <a href="{% url 'change_password' %}">Change Password</a>
+                <p class="top-menu">Hello {{ user.username }}! <small><a href="{% url 'logout' %}" style="color:red">Log out</a></small></p>
             {% else %}  
                 <div>
-                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'login' %}" style="color:red">Login</a>
                 </div>
             {% endif %}
-            <form method="POST" action="{% url 'observation' %}">
-                    {% csrf_token %}
-                        <table>
-                            {% if user.is_authenticated %}
-                                stay time limit: <input type="text" name="Tphase1" style="width:40px"><input type="text" name="Tphase2" style="width:40px"><br>
-                                number of people limit: <input type="text" name="Pphase1" style="width:40px"><input type="text" name="Pphase2" style="width:40px"><br>
-                                people in camera: <input type="text" name="peoplenumber" style="width:40px"><br>
-                                stay time:<input type="text" name="staytime" style="width:40px"><br>
-                                <input type="submit" value="Set" />
-                                <input type="hidden" name="next" value="{{ next }}" />
-                            {% endif %}
-                        </table>
-                </form>
-        </div>
+		</div>
+		
+		<nav>
+			<div class="wrap-nav">
+				<div class="menu">
+					<ul>
+                        <li><a href="{% url 'observation' %}">Observation</a></li>
+                        {% if user.is_authenticated %}          
+                            {% if request.user.is_superuser %}
+                                <li><a href="{% url 'warning_record' %}">Warning record</a></li>
+                                <li><a href="{% url 'add_user' %}">Add User</a></li>
+                            {%endif%}
+                            <li><a href="{% url 'change_password' %}">Change password</a></li>
+                        {% endif %}
+					</ul>
+				</div>
+			</div>
+		</nav>
+        <section id="content">
             <div class="col-md-8">
                 {% block content %}
                 {% endblock %}
             </div>
-    </body>
-</html>
+        </section>	
+	</div>
+</header>

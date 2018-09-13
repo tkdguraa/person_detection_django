@@ -1,12 +1,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<section id="content">
+			<div id="sidebar" class="col-1-3">
+				<div class="wrap-col">
+					<div class="box">
+                        <form method="POST" action="{% url 'observation' %}">
+                            {% csrf_token %}
+                                <table>
+                                    {% if user.is_authenticated %}
+                                        stay time limit: <input type="text" name="Tphase1" style="width:40px"><input type="text" name="Tphase2" style="width:40px"><br>
+                                        number of people limit: <input type="text" name="Pphase1" style="width:40px"><input type="text" name="Pphase2" style="width:40px"><br>
+                                        people in camera: <input type="text" name="peoplenumber" style="width:40px"><br>
+                                        stay time:<input type="text" name="staytime" style="width:40px"><br>
+                                        <input type="submit" value="Set" />
+                                        <input type="hidden" name="next" value="{{ next }}" />
+                                    {% endif %}
+                                </table>
+                        </form>						
+					</div>
+				</div>
+			</div>
+</section>
 {% if phase == 'phase2' %}
     <body class = 'phase2'>
     </body>
 {% elif phase == 'phase3' %}
-    <body class = 'phase2'>
+    <body class = 'phase3'>
     </body>
 {% else %}
     <body>
@@ -21,11 +41,11 @@
         animation:phase3 1s infinite linear;
     }
     @keyframes phase2{
-        50%{background-color:white}
+        50%{background-color:#999999}
         100%{background-color:yellow}
     }
     @keyframes phase3{
-        50%{background-color:white}
+        50%{background-color:#999999}
         100%{background-color:red}
     }
 </style>
