@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+    <table>
+         <tr>
+            <td>Warning type</td>
+            <td>Warning Phase</td>
+            <td>Date</td>
+            <td>Remove</td>
+        </tr>
+        {% for Record in Records %}
+                <tr>
+                <td>{{ Record.type }}</td>
+                <td>{{ Record.phase }}</td>
+                <td>{{ Record.date }}</td>
+                <td>
+                    <form>
+                        
+                    </form>
+                </td>
+                </tr>
+        {% endfor %}
+    </table>
+<style>
+    table {
+        border-spacing: 0;
+        width: 100%;
+        border: 1px solid #E63F00;
+        position:absolute;
+        margin-left:10%;
+    }
+    th{
+        cursor: pointer;
+    }
+    th,td {
+        text-align: left;
+        padding: 10px;
+    }
+    tr:nth-child(2n+1) {
+        background-color:#FFBB00
+    }
+    tr:nth-child(2n) {
+        background-color:#FFDD55
+    }
+</style>
+{% endblock %}
