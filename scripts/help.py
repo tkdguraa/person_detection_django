@@ -2,7 +2,10 @@
 tfnet secondary (helper) methods
 """
 from ..utils.loader import create_loader
+from forum.models import Record
+from django.shortcuts import render_to_response
 from time import time as timer
+from django.utils import timezone
 import tensorflow as tf
 import numpy as np
 import sys
@@ -67,7 +70,9 @@ def _get_fps(self, frame):
     processed = self.framework.postprocess(net_out, frame, False)
     return timer() - start
 
-def camera(self):
+phase = 1
+def camera(self, pl1, pl2, t1 , t2):
+    global phase
     file = self.FLAGS.demo
     SaveVideo = self.FLAGS.saveVideo
     
@@ -130,7 +135,7 @@ def camera(self):
 
             for img, single_out in zip(buffer_inp, net_out):
                 postprocessed, result = self.framework.postprocess(
-                    single_out, img, False)
+                    single_out, img, t1, t2, phase, False)
 
                 if SaveVideo:
                     videoWriter.write(postprocessed)
@@ -142,6 +147,17 @@ def camera(self):
             # Clear Buffers
             buffer_inp = list()
             buffer_pre = list()
+           
+            
+            if int(len(result)) < int(pl1):
+                phase = 1
+            elif int(pl1) <= int(len(result)) and int(len(result)) <= int(pl2) and phase != 2:
+                phase = 2
+                Record.objects.create(phase='phase1',type='exceeding of people number limit',date=timezone.now())
+            elif int(len(result)) > int(pl2) and phase != 3:
+                phase = 3
+                Record.objects.create(phase='phase2',type='exceeding of people number limit',date=timezone.now())
+
 
         if elapsed % 5 == 0:
             sys.stdout.write('\r')

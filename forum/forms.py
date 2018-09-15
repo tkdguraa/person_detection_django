@@ -15,5 +15,3 @@ class warningform(forms.Form):
     Tphase2 = forms.CharField(label = 'Tphase2')
     Pphase1 = forms.CharField(label = 'Pphase1')
     Pphase2 = forms.CharField(label = 'Pphase2')
-    peoplenumber = forms.CharField(label = 'peoplenumber')                            
-    staytime = forms.CharField(label = 'staytime')

@@ -4,6 +4,8 @@ import numpy as np
 import cv2
 import os
 import json
+from django.utils import timezone
+from forum.models import Record
 from ...cython_utils.cy_yolo_findboxes import yolo_box_constructor
 
 def _fix(obj, dims, scale, offs):
@@ -76,10 +78,14 @@ def preprocess(self, im, allobj = None):
 
 person_img_prev = None
 MATCH_THRESHOLD = 20
-def postprocess(self, net_out, im, save = True):
+countframe = 0
+flag = 0
+def postprocess(self, net_out, im, t1, t2, phase, save = True,):
 	"""
 	Takes net output, draw predictions, save to disk
 	"""
+	global countframe
+	global flag
 	meta, FLAGS = self.meta, self.FLAGS
 	threshold = FLAGS.threshold
 	colors, labels = meta['colors'], meta['labels']
@@ -111,7 +117,35 @@ def postprocess(self, net_out, im, save = True):
 			imgcv, mess, (left, top - 12),
 			0, 1e-3 * h, self.meta['colors'][max_indx],
 			thick // 3)
-
+		if phase == 2 or (countframe > int(t1) and countframe < int(t2) and int(t2) >= 0):
+			cv2.rectangle(imgcv,
+				(0, 0), (800, 60),
+				(0,255,255), -1)
+			cv2.rectangle(imgcv,
+				(0, 420), (800, 480),
+				(0,255,255), -1)
+			cv2.putText(
+				imgcv,"Warning", (210, 45),
+				2,1.5, (0,0,0),
+				thick)
+			if phase != 2 and flag != 2:
+				Record.objects.create(phase='phase1',type='exceeding of time limit',date=timezone.now())
+				flag = 2
+		if phase == 3 or (countframe >= int(t2) and int(t2) >= 0):
+			cv2.rectangle(imgcv,
+				(0, 0), (800, 60),
+				(0,0,219), -1)
+			cv2.rectangle(imgcv,
+				(0, 420), (800, 480),
+				(0,0,219), -1)
+			cv2.putText(
+				imgcv,"Warning", (210, 45),
+				2,1.5, (0,0,0),
+				thick)
+			if phase != 3 and flag != 3:
+				flag = 3
+				Record.objects.create(phase='phase2',type='exceeding of time limit',date=timezone.now())
+			
 		# compute similarity score, check whether a certain person is staying or not
 		if mess is "person":
 			person_img = imgcv[top : bot, left : right]
@@ -138,7 +172,12 @@ def postprocess(self, net_out, im, save = True):
 				person_img_prev = person_img
 
 				if len(good) >= MATCH_THRESHOLD:
-					print("!!!!!!!!!!!STAY!!!!!!!!!!!") 
+					countframe = countframe + 1
+					print("!!!!!!!!!!!STAY!!!!!!!!!!!")
+				else:
+					countframe = 0
+					flag = 0
+					
 
 
 	print(json.dumps(resultsForJSON))

@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse,HttpResponse
 from django.views.decorators import gzip
 from django.template import Context, loader
 from django.contrib import auth
@@ -18,6 +18,7 @@ from django import forms
 from .models import Record
 from .forms import changeform,userform,warningform
 from darkflow.net.build import TFNet
+
 
 def remove_record(request):
     id = request.GET.get("id")
@@ -28,8 +29,12 @@ def remove_record(request):
 def warning_record(request):
     Records = Record.objects.filter(date__lte=timezone.now()).order_by('-date')
     return render(request, 'warning_record.html',{'Records': Records})
-        
-def observation(request):
+
+pl1 = 998
+pl2 = 999
+t1 = -1
+t2 = -1
+def detection(request):
     if request.method == "POST":
         form = warningform(request.POST)
         if form.is_valid():
@@ -37,20 +42,20 @@ def observation(request):
             Tphase2 = form.cleaned_data.get('Tphase2')
             Pphase1 = form.cleaned_data.get('Pphase1')
             Pphase2 = form.cleaned_data.get('Pphase2')
-            peoplenumber = form.cleaned_data.get('peoplenumber')
-            staytime = form.cleaned_data.get('staytime')
-            if staytime < Tphase1:
-                phase = 'phase1'
-            elif Tphase1 <= staytime and staytime <= Tphase2:
-                phase = 'phase2'
-                Record.objects.create(phase='phase2',type='Staytime',date=timezone.now())
-            else:
-                phase = 'phase3'
-                Record.objects.create(phase='phase3',type='Staytime',date=timezone.now())
-            return render(request,'observation.html',{'phase':phase})
+            global pl1
+            global pl2
+            global t1
+            global t2
+            if int(Pphase1) >= 0 and int(Pphase2) >= 0:
+                pl1 = Pphase1
+                pl2 = Pphase2
+            t1 = Tphase1
+            t2 = Tphase2
+    
+            return redirect('/')
     else:
         form = warningform()
-    return render(request, 'observation.html',{'form': form})
+        return render(request, 'detection.html',{'form': form})
 
 def change_password(request):
     if request.method == "POST":
@@ -117,18 +122,6 @@ def detect(request):
     # return StreamingHttpResponse(gen(VideoCamera()), content_type="multipart/x-mixed-replace;boundary=frame")
     return StreamingHttpResponse(run_darkflow(), content_type="multipart/x-mixed-replace;boundary=frame")
 
-def video(request):
-    return render(request, 'video.html', {})
-
-# def detect(request):    
-#     template = 'post_list.html'
-#     context = get_sample_context()
-#     stream = jinja_generate_with_template(template, context)
-    
-#     return StreamingHttpResponse(stream)
-
-
-
 def run_darkflow():
     options = {
                 "model": "./cfg/v1.1/tiny-yolov1.cfg",
@@ -138,4 +131,4 @@ def run_darkflow():
             }
 
     tfnet = TFNet(options)
-    return tfnet.camera()
+    return tfnet.camera(pl1,pl2,t1,t2)
