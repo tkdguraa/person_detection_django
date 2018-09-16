@@ -122,7 +122,6 @@ def gen(camera):
 
 # @gzip.gzip_page
 def detect(request):
-    # return StreamingHttpResponse(gen(VideoCamera()), content_type="multipart/x-mixed-replace;boundary=frame")
     return StreamingHttpResponse(run_darkflow(), content_type="multipart/x-mixed-replace;boundary=frame")
 
 def run_darkflow():

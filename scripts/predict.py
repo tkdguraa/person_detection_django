@@ -152,8 +152,6 @@ def postprocess(self, net_out, im, t1, t2, phase, save = True,):
 			global person_img_prev
 			if person_img_prev is None:
 				person_img_prev = person_img
-			
-			cv2.imshow('', person_img)
 
 			orb = cv2.ORB_create()
 			kp1, des1 = orb.detectAndCompute(person_img, None)
