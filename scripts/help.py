@@ -2,7 +2,7 @@
 tfnet secondary (helper) methods
 """
 from ..utils.loader import create_loader
-from forum.models import Record
+from detection.models import Record
 from django.shortcuts import render_to_response
 from time import time as timer
 from django.utils import timezone
@@ -153,10 +153,10 @@ def camera(self, pl1, pl2, t1 , t2):
                 phase = 1
             elif int(pl1) <= int(len(result)) and int(len(result)) <= int(pl2) and phase != 2:
                 phase = 2
-                Record.objects.create(phase='phase1',type='exceeding of people number limit',date=timezone.now())
+                Record.objects.create(phase='phase1',type='number of people exceeded',date=timezone.now())
             elif int(len(result)) > int(pl2) and phase != 3:
                 phase = 3
-                Record.objects.create(phase='phase2',type='exceeding of people number limit',date=timezone.now())
+                Record.objects.create(phase='phase2',type='number of people exceeded',date=timezone.now())
 
 
         if elapsed % 5 == 0:

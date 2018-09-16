@@ -5,7 +5,7 @@ import cv2
 import os
 import json
 from django.utils import timezone
-from forum.models import Record
+from detection.models import Record
 from ...cython_utils.cy_yolo_findboxes import yolo_box_constructor
 
 def _fix(obj, dims, scale, offs):
@@ -125,11 +125,11 @@ def postprocess(self, net_out, im, t1, t2, phase, save = True,):
 				(0, 420), (800, 480),
 				(0,255,255), -1)
 			cv2.putText(
-				imgcv,"Warning", (210, 45),
+				imgcv,"WARNING", (210, 45),
 				2,1.5, (0,0,0),
 				thick)
 			if phase != 2 and flag != 2:
-				Record.objects.create(phase='phase1',type='exceeding of time limit',date=timezone.now())
+				Record.objects.create(phase='phase1',type='time limit exceeded',date=timezone.now())
 				flag = 2
 		if phase == 3 or (countframe >= int(t2) and int(t2) >= 0):
 			cv2.rectangle(imgcv,
@@ -139,12 +139,12 @@ def postprocess(self, net_out, im, t1, t2, phase, save = True,):
 				(0, 420), (800, 480),
 				(0,0,219), -1)
 			cv2.putText(
-				imgcv,"Warning", (210, 45),
+				imgcv,"WARNING", (210, 45),
 				2,1.5, (0,0,0),
 				thick)
 			if phase != 3 and flag != 3:
 				flag = 3
-				Record.objects.create(phase='phase2',type='exceeding of time limit',date=timezone.now())
+				Record.objects.create(phase='phase2',type='time limit exceeded',date=timezone.now())
 			
 		# compute similarity score, check whether a certain person is staying or not
 		if mess is "person":
@@ -173,7 +173,6 @@ def postprocess(self, net_out, im, t1, t2, phase, save = True,):
 
 				if len(good) >= MATCH_THRESHOLD:
 					countframe = countframe + 1
-					print("!!!!!!!!!!!STAY!!!!!!!!!!!")
 				else:
 					countframe = 0
 					flag = 0

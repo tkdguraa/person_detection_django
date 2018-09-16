@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section id="content">
+			<div id="sidebar" class="col-1-3">
+				<div class="wrap-col">
+					<div class="box">
+                        <form method="POST" action="{% url 'detection' %}">
+                            {% csrf_token %}
+                                <table>
+                                    {% if user.is_authenticated %}
+                                        stay time limit(frame): <br>
+                                        Phase1:<input type="text" name="Tphase1" style="width:40px"><span>&nbsp;&nbsp;Phase2:</span><input type="text" name="Tphase2" style="width:40px"><br>
+                                        <br>
+                                        number of people limit: <br> 
+                                        Phase1:<input type="text" name="Pphase1" style="width:40px"><span>&nbsp;&nbsp;Phase2:</span><input type="text" name="Pphase2" style="width:40px"><br>                                        
+                                        <br>    
+                                        <input type="submit" value="Set" />
+                                        <input type="hidden" name="next" value="{{ next }}" />
+                                    {% endif %}
+                                </table>
+                        </form>
+                        <br>
+                        {% if user.is_authenticated %}
+                            Notice:<br>
+                            If you don't want to use certain limitation, please input -1 to both input boxes.	
+                        {% else %}
+                            Please login to change the settings.	
+                        {% endif %}
+					</div>
+				</div>
+            </div>
+            <img src="/detect"/>
+</section>
+<style>
+    input{
+        background-color:rgb(233, 227, 227);
+    }
+</style>
+{% endblock %}

@@ -49,6 +49,9 @@ def detection(request):
             if int(Pphase1) >= 0 and int(Pphase2) >= 0:
                 pl1 = Pphase1
                 pl2 = Pphase2
+            else:
+                pl1 = 998
+                pl2 = 999
             t1 = Tphase1
             t2 = Tphase2
     

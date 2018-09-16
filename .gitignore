@@ -1,6 +1,5 @@
-forum/__pycache__
-mysite/__pycache__
-mysite/settings.py
+detection/__pycache__
+CCTVsite/__pycache__
 db.sqlite3
 bin/
 darkflow/
